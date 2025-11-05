@@ -1,0 +1,15 @@
+# .gitignore
+# ===================================
+# The Farmer Was Raytraced (Replaced)
+# ===================================
+
+# Project files
+*.bak
+*.tmp
+*.kate-swp
+*.kateproject
+*.json
+
+# Game / save Data
+output.txt
+__builtins__.py
