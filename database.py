@@ -44,47 +44,50 @@ for y in range(static.ws):
 
 wall_index = {}
 
-for y in range(static.ws):
+def clean_wall_index():
+	for y in range(static.ws):
+		for x in range(static.ws):
+			# right / internal
+			if x < static.ws - 1:
+				a = (x, y)
+				b = (x + 1, y)
+				wall_index[(a,b)] = None
+				wall_index[(b,a)] = None
+
+			# up / internal
+			if y < static.ws - 1:
+				a = (x, y)
+				b = (x, y + 1)
+				wall_index[(a,b)] = None
+				wall_index[(b,a)] = None
+
+clean_wall_index() #called the first time db is loaded
+
+# Mark the perimeter walls as being blocked
+# The perimeter of the world is always a wall when inside a maze, might as well set them now.
+def set_maze_perimeter_walls():
 	for x in range(static.ws):
-		# right / internal
-		if x < static.ws - 1:
-			a = (x, y)
-			b = (x + 1, y)
-			wall_index[(a,b)] = None
-			wall_index[(b,a)] = None
+		# bottom
+		a = (x, 0)
+		b = (x, -1)
+		wall_index[(a,b)] = True
+		wall_index[(b,a)] = True
 
-		# up / internal
-		if y < static.ws - 1:
-			a = (x, y)
-			b = (x, y + 1)
-			wall_index[(a,b)] = None
-			wall_index[(b,a)] = None
+		# top
+		a = (x, static.ws - 1)
+		b = (x, static.ws)
+		wall_index[(a,b)] = True
+		wall_index[(b,a)] = True
 
+	for y in range(static.ws):
+		# left
+		a = (0, y)
+		b = (-1, y)
+		wall_index[(a,b)] = True
+		wall_index[(b,a)] = True
 
-# Add perimeter walls #
-# The perimiter of the world is always a wall when inside a maze, might as well set them now.
-for x in range(static.ws):
-	# bottom
-	a = (x, 0)
-	b = (x, -1)
-	wall_index[(a,b)] = True
-	wall_index[(b,a)] = True
-
-	# top
-	a = (x, static.ws - 1)
-	b = (x, static.ws)
-	wall_index[(a,b)] = True
-	wall_index[(b,a)] = True
-
-for y in range(static.ws):
-	# left
-	a = (0, y)
-	b = (-1, y)
-	wall_index[(a,b)] = True
-	wall_index[(b,a)] = True
-
-	# right
-	a = (static.ws - 1, y)
-	b = (static.ws, y)
-	wall_index[(a,b)] = True
-	wall_index[(b,a)] = True
+		# right
+		a = (static.ws - 1, y)
+		b = (static.ws, y)
+		wall_index[(a,b)] = True
+		wall_index[(b,a)] = True

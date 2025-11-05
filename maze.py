@@ -12,6 +12,7 @@ import static
 
 # ------------------------------------------------
 # Buld maze
+# @TODO `maze_size` isn't built yet, just a placeholder, just use 0. Or use unlock() to set worldsize
 # ------------------------------------------------
 def build(size):
 	if size > 0 and size <= static.ws:
@@ -24,12 +25,12 @@ def build(size):
 			plant(Entities.Bush)
 			move(North)
 		move(East)
-	for i in range(maze_size):
-		for i in range(maze_size):
-			use_item(Items.Weird_Substance,maze_size)
-			move(North)
-		move(East)
 
+	if num_items(Items.Weird_Substance) >= maze_size:
+		use_item(Items.Weird_Substance,maze_size)
+		database.set_maze_perimeter_walls()
+	else:
+		print("ERROR! Only ",num_items(Items.Weird_Substance)," Weird_Substance, need ",maze_size)
 
 # ------------------------------------------------
 # simple, 'go right and check'
@@ -44,6 +45,7 @@ def find_treasure_simple():
 	if get_entity_type() == Entities.Treasure:
 		quick_print("***** Treasure! *****")
 		harvest()
+		database.clean_wall_index() # remove the perimeter walls now that the maze is gone
 		return True   # signal that treasure was found
 
 	# 2. Try right first
