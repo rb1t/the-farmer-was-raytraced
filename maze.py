@@ -8,6 +8,7 @@
 import database
 import do
 import static
+import drone
 
 
 # ------------------------------------------------
@@ -15,18 +16,21 @@ import static
 # @TODO `maze_size` isn't built yet, just a placeholder, just use 0. Or use unlock() to set worldsize
 # ------------------------------------------------
 def build(size):
+
 	if size > 0 and size <= static.ws:
 		maze_size = size
 	else:
 		maze_size = static.ws
 
-	for i in range(maze_size):
-		for i in range(maze_size):
-			plant(Entities.Bush)
-			move(North)
-		move(East)
-
-	if num_items(Items.Weird_Substance) >= maze_size:
+	if num_items(Items.Weird_Substance) >= maze_size: #make sure we have enough substance for the target map size
+		for i in range(maze_size): #rows
+			for i in range(maze_size): #columns
+				if (get_entity_type()==Entities.Bush): #skip to next column, already a bush planted
+					move(East)
+				else:
+					plant(Entities.Bush)
+					move(North)
+			move(East)
 		use_item(Items.Weird_Substance,maze_size)
 		database.set_maze_perimeter_walls()
 	else:
@@ -36,7 +40,7 @@ def build(size):
 # simple, 'go right and check'
 # ------------------------------------------------
 def find_treasure_simple():
-	facing = database.main_drone_cur_facing
+	facing = drone.facing
 	right_dir = static.right_of[facing]
 	left_dir  = static.left_of[facing]
 	back_dir  = static.right_of[static.right_of[facing]]  # 180°
@@ -51,7 +55,7 @@ def find_treasure_simple():
 	# 2. Try right first
 	if can_move(right_dir):
 		move(right_dir)
-		database.main_drone_cur_facing = right_dir
+		drone.facing = right_dir
 		quick_print("Turned right and moved ", str(right_dir))
 		return False
 
@@ -64,17 +68,14 @@ def find_treasure_simple():
 	# 4. Try left
 	elif can_move(left_dir):
 		move(left_dir)
-		database.main_drone_cur_facing = left_dir
+		drone.facing = left_dir
 		quick_print("Turned left and moved ", str(left_dir))
 		return False
 
 	# 5. All blocked turn around
 	else:
 		move(back_dir)
-		database.main_drone_cur_facing = back_dir
-
-
-
+		drone.facing = back_dir
 
 # ------------------------------------------------
 # Count walls around a given cell

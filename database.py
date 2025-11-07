@@ -11,11 +11,7 @@ import cell
 # Generally stuff that will get updated mid-game
 #################################################
 
-dino_mode_enabled = False
-is_maze_active = False
-main_drone_last_position = 0,0
-main_drone_cur_facing = North
-num_drone_spawned = 0
+mode = ["Farm","Maze","Dino"]
 
 #################################################
 # INIT
@@ -40,6 +36,7 @@ for y in range(static.ws):
 
 # ------------------------------------------------
 # Walls: world perimeter, and internal inside a maze
+# None (no wall), True (wall is up)
 # ------------------------------------------------
 
 wall_index = {}

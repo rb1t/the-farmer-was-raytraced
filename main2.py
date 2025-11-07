@@ -3,13 +3,10 @@
 # The second/alternate main game loop
 # ===============================================
 
-import drone
-import database
+import do
 import static
+import drone
 
-#spread out randomly
-while num_drones() <= static.max_available_drones:
-    if drone.run(database.num_drone_spawned):
-        print("START")
+clear()
 
-print("FINISH")
+drone.spawn_and_work()

@@ -27,7 +27,10 @@ def higher_order_programming():
 	for i in range(len(cubed_numbers)):
 		quick_print(numbers[i], " cubed is ", cubed_numbers[i])
 
-
+# "Circular Import - Create an import cycle"
+def circular_import():
+	move(east)
+# "Stack Overflow - Cause a stack Overflow"
 
 #################################################
 #

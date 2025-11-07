@@ -4,6 +4,9 @@
 # Movement, harvesting, scanning the area, etc.
 # Needs regular cleaning and refactoring. And
 # pairing down and modularizing .. :S
+#
+# Ideally I'm only using as few external modules
+# as needed, for whatever I put in here.
 # ===============================================
 
 import static
@@ -17,11 +20,27 @@ import database
 def check_bounds(x, y):
 	return not (x < 0 or y < 0 or x >= static.ws or y >= static.ws)
 
+# Count up our resources and return in a dictionary
+def count_items():
+	item_counts = []
+	for item in static.items:
+		count = num_items(item)
+		item_counts.append((item, count))
+	return item_counts
+
 # Return a random coordinate in the world
 def gen_random_pos():
 	x = random() * static.ws // 1
 	y = random() * static.ws // 1
 	return x, y
+
+# print a random quantity right in game #CAN DELETE
+def print_random_inventory():
+	items=count_items()
+	random_index = random() * len(items) // 1
+	item = items[random_index][0]
+	amount = items[random_index][1]
+	print(str(item),": ", str(amount))
 
 # Return the Entity and Ground detected at current spot
 def scan():
@@ -165,56 +184,53 @@ def move_random():
 #################################################
 
 def till_spot(desired_ground,desired_plant):
-	if (desired_ground!=get_ground_type()) and (desired_plant!=get_ground_type()):
+	if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
 		till()
-
-def full_till():
-	for i in range(static.ws):
-		for i in range(static.ws):
-			use_water()
-			till()
-			move(North)
-		move(East)
 
 def use_water():
 	if get_water()<0.5:
 		use_item(Items.Water)
 
-# Full Plant: [Desired Plant], [Desired Ground], [Fertilize], [Spacing]
-def full_plant(desired_plant, desired_ground, use_fertilizer, spacing):
-	# Plant
-	if (get_entity_type()!=desired_plant) and (get_entity_type()!=desired_ground):
-		for i in range(static.ws/spacing):
-			for i in range(static.ws/spacing):
-				till_spot(desired_ground,desired_plant)
-				plant(desired_plant)
-				use_water()
-				if use_fertilizer:
-					use_item(Items.Fertilizer)
+# Smart Harvest: [Desired Harvest/Plant], [Desired Ground], [Fertilize?]
+def smart_harvest(desired_plant, desired_ground, use_fertilizer):
 
-				for i in range(spacing):
-					move(North)
-			for i in range(spacing):
-				move(East)
+	#Determine spacing based on entity being planted/farmed
+	if (desired_plant==Entities.Cactus or desired_plant==Entities.Tree):
+		spacing=2 #skip a block
+	else:
+		spacing=1 #every block
 
-# Full Harvest: [Desired Harvest/Plant], [Desired Ground], [Fertilize], [Spacing]
-def full_harvest(desired_plant, desired_ground, use_fertilizer, spacing):
-	if (desired_plant==get_entity_type()) or (get_entity_type()==Entities.Dead_Pumpkin):
-		for i in range(static.ws/spacing):
-			for i in range(static.ws/spacing):
-				till_spot(desired_ground,desired_plant)
-				harvest()
-				use_water()
-				for i in range(spacing):
-					move(North)
-			for i in range(spacing):
-				move(East)
+	#routine pass, do whatever is needed
+	use_water()
+	ground_at_this_spot = get_ground_type()
+	entity_at_this_spot = get_entity_type()
+	if (entity_at_this_spot==desired_plant):
+		harvest()
+		for i in range(random()*spacing//1): #occassionally just move east again to spread out
+			move(North)
+	if (ground_at_this_spot!=desired_ground):
+		till()
+	if (ground_at_this_spot==desired_ground and entity_at_this_spot!=desired_plant):
+		plant(desired_plant)
 
-# Full Plant and Harvest: [Desired Harvest/Plant], [Desired Ground], [Fertilize], [Spacing]
-def full_plant_and_harvest(desired_plant, desired_ground, use_fertilizer, spacing, loops):
-	for i in range(loops):
-		full_plant(desired_plant, desired_ground, use_fertilizer, spacing)
-		full_harvest(desired_plant, desired_ground, use_fertilizer, spacing)
+	#let's spread out, too much tilling and harvesting going on! Doesn't apply to hay
+	if (ground_at_this_spot!=desired_ground or entity_at_this_spot==desired_plant and entity_at_this_spot!=Entities.Grass):
+		for i in range(spacing):
+			move(East)
+
+	# spread out randomly (currently 1 in 10)
+	chance = random()*10//1
+	if((ground_at_this_spot==Grounds.Grassland) and (chance == 9)):
+		for i in range(spacing):
+			move(East)
+
+	#see if it's time to go east/change column, or just north
+	if ((get_pos_y()+spacing)>=(static.ws)):
+		for i in range(spacing):
+			move(East) #columns
+
+	for i in range(spacing):
+		move(North) #rows
 
 
 #################################################
