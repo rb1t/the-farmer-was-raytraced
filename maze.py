@@ -22,15 +22,19 @@ def build(size):
 	else:
 		maze_size = static.ws
 
+	bush_skip = False # using this to track if we skipped a bush spot
+
 	if num_items(Items.Weird_Substance) >= maze_size: #make sure we have enough substance for the target map size
 		for i in range(maze_size): #rows
 			for i in range(maze_size): #columns
 				if (get_entity_type()==Entities.Bush): #skip to next column, already a bush planted
+					bush_skip=True
 					move(East)
 				else:
 					plant(Entities.Bush)
 					move(North)
-			move(East)
+			if not bush_skip:
+				move(East)
 		use_item(Items.Weird_Substance,maze_size)
 		database.set_maze_perimeter_walls()
 	else:

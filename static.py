@@ -12,11 +12,11 @@ items = {
 		Items.Carrot,
 		Items.Pumpkin,
 		Items.Cactus,
+		Items.Power,
 		Items.Bone,
 		Items.Weird_Substance,
 		Items.Water,
 		Items.Fertilizer,
-		Items.Power
 		}
 entities = {
 		Entities.Apple,
@@ -29,4 +29,29 @@ entities = {
 		Entities.Pumpkin,
 		Entities.Sunflower,
 		Entities.Tree,
+}
+tilling_guide = {
+		Entities.Grass: Grounds.Grassland,
+		Entities.Bush: Grounds.Grassland,
+		Entities.Tree: Grounds.Grassland,
+		Entities.Carrot: Grounds.Soil,
+		Entities.Pumpkin: Grounds.Soil,
+		Entities.Cactus: Grounds.Soil,
+		Entities.Sunflower: Grounds.Soil
+}
+planting_guide = {
+		Entities.Grass: Grounds.Grassland,
+		Entities.Tree: Grounds.Grassland,
+		Entities.Carrot: Grounds.Soil,
+		Entities.Pumpkin: Grounds.Soil,
+		Entities.Cactus: Grounds.Soil,
+		Entities.Sunflower: Grounds.Soil
+}
+harvesting_guide = {
+		Entities.Grass: Items.Hay,
+		Entities.Tree: Items.Wood,
+		Entities.Carrot: Items.Carrot,
+		Entities.Pumpkin: Items.Pumpkin,
+		Entities.Cactus: Items.Cactus,
+		Entities.Sunflower: Items.Power
 }

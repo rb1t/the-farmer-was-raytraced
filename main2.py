@@ -7,6 +7,6 @@ import do
 import static
 import drone
 
-clear()
+#clear()
 
 drone.spawn_and_work()

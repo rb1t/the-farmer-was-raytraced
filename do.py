@@ -183,16 +183,75 @@ def move_random():
 # HARVESTING FUNCTIONS
 #################################################
 
+# Polyfarming
+def polyfarm():
+	plant_companion, (x,y) = get_companion()
+	position = x,y
+	move_linear(position)
+	harvest()
+	if (static.tilling_guide[plant_companion] != get_ground_type()):
+		till()
+	plant(plant_companion)
+
+
+# Till
 def till_spot(desired_ground,desired_plant):
 	if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
 		till()
 
+#Check and use water if needed
 def use_water():
 	if get_water()<0.5:
 		use_item(Items.Water)
 
-# Smart Harvest: [Desired Harvest/Plant], [Desired Ground], [Fertilize?]
-def smart_harvest(desired_plant, desired_ground, use_fertilizer):
+
+# General forage / smart harvest:
+def forage():
+
+	# randomly select a plant/resource
+	planting_guide = []
+	for pair in static.planting_guide:
+		planting_guide.append(pair)
+	random_index = random() * len(planting_guide) // 1
+	desired_plant = planting_guide[random_index]
+	desired_ground = static.planting_guide[desired_plant]
+
+	#Determine spacing based on entity being planted/farmed
+	#if (desired_plant==Entities.Cactus or desired_plant==Entities.Tree):
+	#	spacing=2 #skip a block
+	#else:
+	#	spacing=1 #every block
+	spacing=1
+
+	# Check and use if water is needed
+	use_water()
+
+	ground_at_this_spot = get_ground_type()
+	entity_at_this_spot = get_entity_type()
+
+	# Harvest
+	if (entity_at_this_spot==desired_plant):
+		harvest()
+	# Till and plant
+	elif (ground_at_this_spot!=desired_ground):
+		till()
+		plant(desired_plant)
+		# Randomly polyfarm
+		if (get_companion() and (random()*5//1>=4)):
+			polyfarm()
+
+	# See if the next move north puts us over the world line, and go east
+	if ((get_pos_y()+spacing)>=(static.ws)):
+		for i in range(spacing):
+			move(East) #columns
+
+	for i in range(spacing):
+		move(North) #rows
+
+
+
+# Forage_for: [Desired Harvest/Plant], [Desired Ground], [Fertilize?]
+def forage_for(desired_plant, desired_ground, use_fertilizer):
 
 	#Determine spacing based on entity being planted/farmed
 	if (desired_plant==Entities.Cactus or desired_plant==Entities.Tree):
@@ -200,37 +259,55 @@ def smart_harvest(desired_plant, desired_ground, use_fertilizer):
 	else:
 		spacing=1 #every block
 
-	#routine pass, do whatever is needed
+	# Check and use if water is needed
 	use_water()
+
 	ground_at_this_spot = get_ground_type()
 	entity_at_this_spot = get_entity_type()
+
+	# Harvest and plant
 	if (entity_at_this_spot==desired_plant):
 		harvest()
-		for i in range(random()*spacing//1): #occassionally just move east again to spread out
-			move(North)
-	if (ground_at_this_spot!=desired_ground):
-		till()
-	if (ground_at_this_spot==desired_ground and entity_at_this_spot!=desired_plant):
 		plant(desired_plant)
 
-	#let's spread out, too much tilling and harvesting going on! Doesn't apply to hay
-	if (ground_at_this_spot!=desired_ground or entity_at_this_spot==desired_plant and entity_at_this_spot!=Entities.Grass):
+	# Till
+	if (ground_at_this_spot!=desired_ground):
+		till()
+
+	if (ground_at_this_spot==desired_ground and entity_at_this_spot!=desired_plant):
+		plant(desired_plant)
+		# randomly polyfarm
+		if((random()*2//1 == 2)):
+			polyfarm()
+
+	if (use_fertilizer):
+		use_item(Items.Fertilizer)
+
+	# Let's spread out, too much tilling and harvesting going on! Doesn't apply to hay
+	#if ((ground_at_this_spot!=desired_ground or entity_at_this_spot==desired_plant) and entity_at_this_spot!=Entities.Grass):
+	#	for i in range(spacing):
+	#		move(East)
+	#	smart_harvest(desired_plant, desired_ground, use_fertilizer)
+
+	# Random chance for moving east based on spacing
+	if((random()*10//1 == 9)):
 		for i in range(spacing):
 			move(East)
 
-	# spread out randomly (currently 1 in 10)
-	chance = random()*10//1
-	if((ground_at_this_spot==Grounds.Grassland) and (chance == 9)):
-		for i in range(spacing):
-			move(East)
+	# Randomly just go east
+	#if(desired_plant==Entities.Grass and (random()*25//1 == 24)):
+	#	for i in range(spacing):
+	#		move(East)
 
-	#see if it's time to go east/change column, or just north
+
+	# See if the next move north puts us over the world line, and go east
 	if ((get_pos_y()+spacing)>=(static.ws)):
 		for i in range(spacing):
 			move(East) #columns
 
 	for i in range(spacing):
 		move(North) #rows
+
 
 
 #################################################

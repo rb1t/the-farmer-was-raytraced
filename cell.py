@@ -9,3 +9,9 @@ position = 0,0                    # (x, y)
 ground_type = Grounds.Grassland   # e.g. Ground.Soil, Ground.Rock, etc.
 entity_type = Entities.Grass      # e.g. Entities.Pumpkin, Entities.Tree
 fertilized = False                # boolean
+plant_timer = 0
+
+
+def set_plant__timer():
+	#plant_timer = get_time()
+	pass

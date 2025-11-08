@@ -10,25 +10,29 @@ import maze
 last_position = 0,0 #not using atm...
 facing = North #set initial direction
 
-def determine_priority():
+def determine_priority(): #looped in spawn_and_work():
 
-	# Check sufficient resources
-	# ...
-	#always do for now / simulate condition is met for cactus
+	#maze.build(0)
+	#while not maze.find_treasure_simple():
+	#	pass
 
-	do.smart_harvest(Entities.Grass, Grounds.Grassland, False)
-	#do.smart_harvest(Entities.Tree, Grounds.Grassland, False)
-	#do.smart_harvest(Entities.Carrot, Grounds.Soil, False)
-	#do.smart_harvest(Entities.Pumpkin, Grounds.Soil, False)
-	#do.smart_harvest(Entities.Cactus, Grounds.Soil, False)
+	#harvest everything contained in our static list
+	# target = 10000000
+	# for plant in static.planting_guide:
+	# 	ground = static.planting_guide[plant]
+	# 	item = static.harvesting_guide[plant]
+	# 	while num_items(item) < target:
+	# 		do.forage_for(plant, ground, False)
 
-	# Check for specific objective # database.mode = ["Farm","Maze","Dino"]
-	# ...
+	do.forage()
 
-	# Other
-	# ...
+	#do.forage(Entities.Grass, Grounds.Grassland, False)
+	do.forage_for(Entities.Tree, Grounds.Grassland, False)
+	#do.forage(Entities.Carrot, Grounds.Soil, False)
+	#do.forage(Entities.Pumpkin, Grounds.Soil, False)
+	#do.forage(Entities.Cactus, Grounds.Soil, False)
 
-	# Test stuff --------------
+
 	#do.move_random()
 	#harvest()
 
@@ -50,6 +54,7 @@ def spawn_and_work():
 	while True:
 		# getting all drones out, later we can have logic to spawn only as needed
 		while num_drones() < static.max_available_drones:
+			#do.move_random() #spread out randomly
 			spawn_drone(spawn_and_work)
 		determine_priority()
 		#run each loop, for each drone
