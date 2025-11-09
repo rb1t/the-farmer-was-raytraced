@@ -13,7 +13,7 @@ facing = North #set initial direction
 def determine_priority(id): #looped in spawn_and_work():
 
 	my_id = id
-	#Maze builder
+	#Maze builder: Try finding treasure, and if it fails, build maze.
 	if not maze.find_treasure_simple() and (get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush):
 
 		#move randomly to cover the maze
@@ -23,42 +23,59 @@ def determine_priority(id): #looped in spawn_and_work():
 		#	move(North)
 		#	move(North)
 
-		# Add some randomness to get the drones moving in unusual directions (not all drones)
-		if ((my_id)%2==0 and ((random()*4//1)>=3)):
-			move(East)
-			if(maze.check_treasure()):
-				use_item(Items.Weird_Substance,(static.ws*2))
-			move(East)
-			if(maze.check_treasure()):
-				use_item(Items.Weird_Substance,(static.ws*2))
+		# Add some randomness to even numbered drones drones moving in unusual directions (not all drones)
+		if ((my_id)%2==0 and ((random()*5//1)>=4)):
+			change_hat(Hats.Brown_Hat)
 			move(North)
 			if(maze.check_treasure()):
 				use_item(Items.Weird_Substance,(static.ws*2))
 			move(North)
 			if(maze.check_treasure()):
 				use_item(Items.Weird_Substance,(static.ws*2))
-
-		# Every odd drone
-		if ((my_id)%2!=0 and ((random()*5//1)>=4)):
-			move(West)
+			move(North)
 			if(maze.check_treasure()):
 				use_item(Items.Weird_Substance,(static.ws*2))
-			move(West)
+			move(East)
 			if(maze.check_treasure()):
 				use_item(Items.Weird_Substance,(static.ws*2))
-			move(South)
-			if(maze.check_treasure()):
-				use_item(Items.Weird_Substance,(static.ws*2))
-			move(South)
+			move(East)
 			if(maze.check_treasure()):
 				use_item(Items.Weird_Substance,(static.ws*2))
 
-		# Every 5th drone will try to move directly to the treasure
-		if ((my_id)%4==0 and ((random()*2//1)>=2)):
+		# Every nth drone (or random num) will try to move directly to the treasure
+		elif ((my_id)%9==0 or ((random()*33//1)>=32)):
+			# Add some random movement once in a while to hope and get unstuck
+			if ((random()*7//1)>=6):
+				do.move_random()
+			change_hat(Hats.Wizard_Hat)
 			treasure_pos=measure()
 			do.move_linear(treasure_pos)
 
+		# Every nth drone moves weirdly
+		elif ((my_id)%6==0 and ((random()*5//1)>=4)):
+			change_hat(Hats.Brown_Hat)
+			move(West)
+			if(maze.check_treasure()):
+				use_item(Items.Weird_Substance,(static.ws*2))
+			move(West)
+			if(maze.check_treasure()):
+				use_item(Items.Weird_Substance,(static.ws*2))
+			move(South)
+			if(maze.check_treasure()):
+				use_item(Items.Weird_Substance,(static.ws*2))
+			move(South)
+			if(maze.check_treasure()):
+				use_item(Items.Weird_Substance,(static.ws*2))
+
+		# Add some random movement once in a while to hope and get unstuck
+		elif ((random()*66//1)>=65):
+			change_hat(Hats.Cactus_Hat)
+			do.move_random()
+
+		else:
+			change_hat(Hats.Gold_Hat) #Normies - these drones don't have a special task yet
 		#	maze.find_treasure_simple()
+
 		maze.find_treasure_simple()
 	else:
 		maze.build(0)
