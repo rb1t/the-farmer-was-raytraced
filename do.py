@@ -185,13 +185,14 @@ def move_random():
 
 # Polyfarming
 def polyfarm():
-	plant_companion, (x,y) = get_companion()
-	position = x,y
-	move_linear(position)
-	harvest()
-	if (static.tilling_guide[plant_companion] != get_ground_type()):
-		till()
-	plant(plant_companion)
+	if (get_companion()):
+		plant_companion, (x,y) = get_companion()
+		position = x,y
+		move_linear(position)
+		harvest()
+		if (static.tilling_guide[plant_companion] != get_ground_type()):
+			till()
+		plant(plant_companion)
 
 
 # Till
@@ -240,13 +241,21 @@ def forage():
 		if (get_companion() and (random()*5//1>=4)):
 			polyfarm()
 
-	# See if the next move north puts us over the world line, and go east
-	if ((get_pos_y()+spacing)>=(static.ws)):
-		for i in range(spacing):
-			move(East) #columns
 
-	for i in range(spacing):
-		move(North) #rows
+	use_item(Items.Fertilizer)
+
+	# Determine where to move next ##
+
+	if(desired_plant==Entities.Grass):
+		move(North)
+	else:
+		# See if the next move north puts us over the world line, and go east
+		if ((get_pos_y()+spacing)>=(static.ws)):
+			for i in range(spacing):
+				move(East) #columns
+
+		for i in range(spacing):
+			move(North) #rows
 
 
 
@@ -278,35 +287,29 @@ def forage_for(desired_plant, desired_ground, use_fertilizer):
 		plant(desired_plant)
 		# randomly polyfarm
 		if((random()*2//1 == 2)):
-			polyfarm()
+			polyfarm(use_fertilizer)
 
 	if (use_fertilizer):
 		use_item(Items.Fertilizer)
 
-	# Let's spread out, too much tilling and harvesting going on! Doesn't apply to hay
-	#if ((ground_at_this_spot!=desired_ground or entity_at_this_spot==desired_plant) and entity_at_this_spot!=Entities.Grass):
-	#	for i in range(spacing):
-	#		move(East)
-	#	smart_harvest(desired_plant, desired_ground, use_fertilizer)
-
 	# Random chance for moving east based on spacing
-	if((random()*10//1 == 9)):
-		for i in range(spacing):
-			move(East)
-
-	# Randomly just go east
-	#if(desired_plant==Entities.Grass and (random()*25//1 == 24)):
+	#if((random()*10//1 == 9)):
 	#	for i in range(spacing):
 	#		move(East)
 
 
-	# See if the next move north puts us over the world line, and go east
-	if ((get_pos_y()+spacing)>=(static.ws)):
-		for i in range(spacing):
-			move(East) #columns
+	# Determine where to move next ##
 
-	for i in range(spacing):
-		move(North) #rows
+	if(desired_plant==Entities.Grass):
+		move(North)
+	else:
+		# See if the next move north puts us over the world line, and go east
+		if ((get_pos_y()+spacing)>=(static.ws)):
+			for i in range(spacing):
+				move(East) #columns
+
+		for i in range(spacing):
+			move(North) #rows
 
 
 

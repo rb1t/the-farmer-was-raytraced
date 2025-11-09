@@ -21,18 +21,19 @@ mode = ["Farm","Maze","Dino"]
 # Create our index of cells
 world_cells = []
 cell_id = 0
-for y in range(static.ws):
-	for x in range(static.ws):
-		# Make a new cell instance (dictionary copy of cell.py defaults)
-		new_cell = {
-			"id": cell_id,
-			"position": (x, y),
-			"ground_type": cell.ground_type,
-			"entity_type": cell.entity_type,
-			"fertilized": cell.fertilized
-		}
-		world_cells.append(new_cell)
-		cell_id += 1
+def make_cells():
+	for y in range(static.ws):
+		for x in range(static.ws):
+			# Make a new cell instance (dictionary copy of cell.py defaults)
+			new_cell = {
+				"id": cell_id,
+				"position": (x, y),
+				"ground_type": cell.ground_type,
+				"entity_type": cell.entity_type,
+				"fertilized": cell.fertilized
+			}
+			world_cells.append(new_cell)
+			cell_id += 1
 
 # ------------------------------------------------
 # Walls: world perimeter, and internal inside a maze
@@ -58,7 +59,7 @@ def clean_wall_index():
 				wall_index[(a,b)] = None
 				wall_index[(b,a)] = None
 
-clean_wall_index() #called the first time db is loaded
+#clean_wall_index() #called the first time db is loaded
 
 # Mark the perimeter walls as being blocked
 # The perimeter of the world is always a wall when inside a maze, might as well set them now.

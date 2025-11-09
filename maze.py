@@ -13,36 +13,29 @@ import drone
 
 # ------------------------------------------------
 # Buld maze
-# @TODO `maze_size` isn't built yet, just a placeholder, just use 0. Or use unlock() to set worldsize
 # ------------------------------------------------
+
+
 def build(size):
+	maze_size=static.ws*2 #full map
 
-	if size > 0 and size <= static.ws:
-		maze_size = size
-	else:
-		maze_size = static.ws
-
-	bush_skip = False # using this to track if we skipped a bush spot
-
-	if num_items(Items.Weird_Substance) >= maze_size: #make sure we have enough substance for the target map size
-		for i in range(maze_size): #rows
-			for i in range(maze_size): #columns
-				if (get_entity_type()==Entities.Bush): #skip to next column, already a bush planted
-					bush_skip=True
-					move(East)
-				else:
-					plant(Entities.Bush)
-					move(North)
-			if not bush_skip:
-				move(East)
+	if get_entity_type()==Entities.Grass:
+		plant(Entities.Bush)
 		use_item(Items.Weird_Substance,maze_size)
-		database.set_maze_perimeter_walls()
-	else:
-		print("ERROR! Only ",num_items(Items.Weird_Substance)," Weird_Substance, need ",maze_size)
+
+	move(North)
+	# See if the next move north puts us over the world line, and go east
+	#if ((get_pos_y()+1)>=(static.ws)):
+	#	move(East) #columns
+
 
 # ------------------------------------------------
 # simple, 'go right and check'
 # ------------------------------------------------
+
+def check_treasure():
+	return (get_entity_type() == Entities.Treasure)
+
 def find_treasure_simple():
 	facing = drone.facing
 	right_dir = static.right_of[facing]
@@ -51,29 +44,35 @@ def find_treasure_simple():
 
 	# 1. Check for treasure
 	if get_entity_type() == Entities.Treasure:
-		quick_print("***** Treasure! *****")
-		harvest()
-		database.clean_wall_index() # remove the perimeter walls now that the maze is gone
+		#quick_print("***** Treasure! *****")
+
+		# occassionally harvest or make a harder maze
+		if ((random()*1000//1)>=999):
+			harvest()
+			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
+		else:
+			use_item(Items.Weird_Substance,(static.ws*2))
+
 		return True   # signal that treasure was found
 
 	# 2. Try right first
 	if can_move(right_dir):
 		move(right_dir)
 		drone.facing = right_dir
-		quick_print("Turned right and moved ", str(right_dir))
+		#quick_print("Turned right and moved ", str(right_dir))
 		return False
 
 	# 3. Try forward
 	elif can_move(facing):
 		move(facing)
-		quick_print("Moved forward ", str(facing))
+		#quick_print("Moved forward ", str(facing))
 		return False
 
 	# 4. Try left
 	elif can_move(left_dir):
 		move(left_dir)
 		drone.facing = left_dir
-		quick_print("Turned left and moved ", str(left_dir))
+		#quick_print("Turned left and moved ", str(left_dir))
 		return False
 
 	# 5. All blocked turn around
