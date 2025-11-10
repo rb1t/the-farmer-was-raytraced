@@ -1,4 +1,4 @@
-# mazy.py
+# maze.py
 # ===============================================
 # Maze setup and exploration
 # Currently using right-hand rule (always turn right if possible)
@@ -47,7 +47,7 @@ def find_treasure_simple():
 		#quick_print("***** Treasure! *****")
 
 		# occassionally harvest or make a harder maze
-		if ((random()*1000//1)>=999):
+		if ((random()*2000//1)>=1999):
 			harvest()
 			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
 		else:
@@ -179,3 +179,29 @@ def maze_explore():
 			break
 
 	do.quick_print("Exploration done. Visited:", len(visited), "Dead ends:", len(database.dead_cells))
+
+
+# ------------------------------------------------
+# Explore maze using right-hand rule
+# ------------------------------------------------
+
+def solve():
+	if not find_treasure_simple() and (get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush):
+		# Randomly assign [this] drone to try and move directly at the treasure
+		if ((random()*31//1)>=30):
+			if ((random()*7//1)>=6):# Add some random movement once in a while to hope and get unstuck
+				do.move_random()
+			change_hat(Hats.Wizard_Hat)
+			treasure_pos=measure()
+			do.move_linear(treasure_pos)
+
+		elif ((random()*66//1)>=65):# Add some random movement once in a while to hope and get unstuck
+			change_hat(Hats.Cactus_Hat)
+			do.move_random()
+
+		else:
+			change_hat(Hats.Gold_Hat) #Normies - these drones don't have a special task yet
+
+		find_treasure_simple()
+	else:
+		build(0)

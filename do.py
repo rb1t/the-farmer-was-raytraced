@@ -42,6 +42,11 @@ def print_random_inventory():
 	amount = items[random_index][1]
 	print(str(item),": ", str(amount))
 
+def print_hats():
+	for hat in Hats:
+		print(hat)
+		do_a_flip()
+
 # Return the Entity and Ground detected at current spot
 def scan():
 	return get_ground_type(), get_entity_type()
@@ -122,54 +127,60 @@ def move_linear_simple(x, y):
 
 # Linear movement (true straight-line movement)
 def move_linear(position):
-	target_x, target_y = position
-	cur_x = get_pos_x()
-	cur_y = get_pos_y()
+	if (position):
+		target_x, target_y = position
+		cur_x = get_pos_x()
+		cur_y = get_pos_y()
 
-	if (check_bounds(target_x, target_y) == False):
-		return
+		if (check_bounds(target_x, target_y) == False):
+			return
 
-	# Calculate deltas
-	dx = abs(target_x - cur_x)
-	dy = abs(target_y - cur_y)
-	if target_x > cur_x:
-		step_x = 1
+		# Calculate deltas
+		dx = abs(target_x - cur_x)
+		dy = abs(target_y - cur_y)
+		if target_x > cur_x:
+			step_x = 1
+		else:
+			step_x = -1
+
+		if target_y > cur_y:
+			step_y = 1
+		else:
+			step_y = -1
+
+		# Error term (used to decide when to step vertically)
+		err = dx - dy
+
+		# Continue until we reach target
+		while True:
+			if cur_x == target_x and cur_y == target_y:
+				break
+
+			e2 = err * 2
+
+			# Move horizontally if needed
+			if e2 > -dy:
+				err -= dy
+				cur_x += step_x
+				if step_x > 0:
+					move(East)
+				else:
+					move(West)
+
+			# Move vertically if needed
+			if e2 < dx:
+				err += dx
+				cur_y += step_y
+				if step_y > 0:
+					move(North)
+				else:
+					move(South)
+
+
+	if (position == get_pos()):
+		return True
 	else:
-		step_x = -1
-
-	if target_y > cur_y:
-		step_y = 1
-	else:
-		step_y = -1
-
-	# Error term (used to decide when to step vertically)
-	err = dx - dy
-
-	# Continue until we reach target
-	while True:
-		if cur_x == target_x and cur_y == target_y:
-			break
-
-		e2 = err * 2
-
-		# Move horizontally if needed
-		if e2 > -dy:
-			err -= dy
-			cur_x += step_x
-			if step_x > 0:
-				move(East)
-			else:
-				move(West)
-
-		# Move vertically if needed
-		if e2 < dx:
-			err += dx
-			cur_y += step_y
-			if step_y > 0:
-				move(North)
-			else:
-				move(South)
-
+		return False
 
 # Move to a random (x, y) position within world bounds
 def move_random():
