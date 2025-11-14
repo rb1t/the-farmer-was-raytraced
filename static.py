@@ -40,7 +40,6 @@ tilling_guide = {
 		Entities.Sunflower: Grounds.Soil
 }
 planting_guide = {
-		Entities.Grass: Grounds.Grassland,
 		Entities.Tree: Grounds.Grassland,
 		Entities.Carrot: Grounds.Soil,
 		Entities.Pumpkin: Grounds.Soil,

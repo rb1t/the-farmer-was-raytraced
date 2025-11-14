@@ -11,6 +11,7 @@
 
 import static
 import database
+import drone
 
 #################################################
 # COMMON FUNCTIONS
@@ -76,15 +77,6 @@ def quick_print_costs():
 		#if num_items(item) < cost[item]:
 		#    quick_print(" - ! Not enough ",item," to unlock ",items[item])
 
-# Dinosaur-mode toggle
-def toggle_dino_mode():
-	if database.dino_mode_enabled == False:
-		change_hat(Hats.Dinosaur_Hat)
-		database.dino_mode_enabled = True
-	else:
-		change_hat(Hats.Pumpkin_Hat)
-		database.dino_mode_enabled = False
-
 #################################################
 # MOVEMENT FUNCTIONS
 #################################################
@@ -107,6 +99,60 @@ def move_simple(x, y):
 			move(North)
 		else:
 			move(South)
+
+# Move a single tile, whatever is available, based on 'right hand rule'
+# based on our find_treasure_simple() in maze.py
+def navigate():
+	facing = drone.facing
+	right_dir = static.right_of[facing]
+	left_dir  = static.left_of[facing]
+	back_dir  = static.right_of[static.right_of[facing]]  # 180°
+
+	# 1. Try right first
+	if can_move(right_dir):
+		move(right_dir)
+		drone.facing = right_dir
+		return False
+
+	# 2. Try forward
+	elif can_move(facing):
+		move(facing)
+		return False
+
+	# 3. Try left
+	elif can_move(left_dir):
+		move(left_dir)
+		drone.facing = left_dir
+		return False
+
+	# 4. All blocked turn around
+	else:
+		move(back_dir)
+		drone.facing = back_dir
+
+# Based on move_linear_simple, but here we want to move around the blocked area, AND catch move errors
+def move_smart(position):
+	if (position==None):
+		return False
+	else:
+		x,y=position
+
+	if(check_bounds(x,y)==False):
+		# Align x and y, one at a time
+		while x != get_pos_x() or y != get_pos_y():
+			if x > get_pos_x():
+				if(move(East)):
+					pass
+			elif x < get_pos_x():
+				if(move(West)):
+					pass
+			if y > get_pos_y():
+				if(move(North)):
+					pass
+			elif y < get_pos_y():
+				if(move(South)):
+					pass
+	return True
 
 # Simple, 'Linear-like' movement
 def move_linear_simple(x, y):
@@ -196,14 +242,19 @@ def move_random():
 
 # Polyfarming
 def polyfarm():
-	if (get_companion()):
-		plant_companion, (x,y) = get_companion()
+	get_companion_precheck = get_companion()
+
+	if (get_companion_precheck!=None):
+		plant_companion, (x,y) = get_companion_precheck
 		position = x,y
 		move_linear(position)
 		harvest()
 		if (static.tilling_guide[plant_companion] != get_ground_type()):
 			till()
 		plant(plant_companion)
+		return True
+	else:
+		return False
 
 
 # Till
@@ -242,16 +293,41 @@ def forage():
 	entity_at_this_spot = get_entity_type()
 
 	# Harvest
-	if (entity_at_this_spot==desired_plant):
-		harvest()
-	# Till and plant
-	elif (ground_at_this_spot!=desired_ground):
-		till()
-		plant(desired_plant)
-		# Randomly polyfarm
-		if (get_companion() and (random()*5//1>=4)):
-			polyfarm()
+	#if (entity_at_this_spot==desired_plant):
+	harvest()
 
+	# Till and plant
+	if (ground_at_this_spot!=desired_ground):
+		till()
+	plant(desired_plant)
+	# Randomly polyfarm
+	if (get_companion() and (random()*5//1>=4)):
+		polyfarm()
+
+	# make a bigger pumpkin area periodically. Does not account for world edge
+	if (desired_plant == Entities.Pumpkin) and ((random()*4//1)>=3):
+		move(West)
+		harvest()
+		if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
+			till()
+		plant(desired_plant)
+
+		move(South)
+		harvest()
+		if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
+			till()
+		plant(desired_plant)
+
+		move(East)
+		harvest()
+		if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
+			till()
+		plant(desired_plant)
+
+		move(North) #back to where we started
+		if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
+			till()
+		plant(desired_plant)
 
 	use_item(Items.Fertilizer)
 
@@ -271,7 +347,7 @@ def forage():
 
 
 # Forage_for: [Desired Harvest/Plant], [Desired Ground], [Fertilize?]
-def forage_for(desired_plant, desired_ground, use_fertilizer):
+def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 
 	#Determine spacing based on entity being planted/farmed
 	if (desired_plant==Entities.Cactus or desired_plant==Entities.Tree):
@@ -303,21 +379,18 @@ def forage_for(desired_plant, desired_ground, use_fertilizer):
 	if (use_fertilizer):
 		use_item(Items.Fertilizer)
 
-	# Random chance for moving east based on spacing
-	#if((random()*10//1 == 9)):
-	#	for i in range(spacing):
-	#		move(East)
-
-
 	# Determine where to move next ##
-
-	if(desired_plant==Entities.Grass):
+	if (spacing>1 and (get_pos_x()%2==0) and get_pos_y()==0):
+		move(North)
+	elif(desired_plant==Entities.Grass):
 		move(North)
 	else:
 		# See if the next move north puts us over the world line, and go east
 		if ((get_pos_y()+spacing)>=(static.ws)):
 			for i in range(spacing):
-				move(East) #columns
+				#move(East) #columns
+				if (flip_to_slow):
+					do_a_flip()
 
 		for i in range(spacing):
 			move(North) #rows
