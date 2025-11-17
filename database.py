@@ -7,11 +7,13 @@ import static
 import cell
 
 #################################################
-# STATES
+# STATES & VARS
 # Generally stuff that will get updated mid-game
 #################################################
 
+big_pumpkin_walk_counter=0
 mode = ["Farm","Maze","Dino"]
+
 
 #################################################
 # INIT
@@ -20,17 +22,23 @@ mode = ["Farm","Maze","Dino"]
 
 # Create our index of cells
 world_cells = []
-cell_id = 0
-def make_cells():
-	for y in range(static.ws):
-		for x in range(static.ws):
+
+def make_cells(world_size):
+	if(world_size >0):
+		ws=world_size
+	else:
+		ws=static.ws
+	cell_id = 0
+	for y in range(ws):
+		for x in range(ws):
 			# Make a new cell instance (dictionary copy of cell.py defaults)
 			new_cell = {
 				"id": cell_id,
 				"position": (x, y),
 				"ground_type": cell.ground_type,
 				"entity_type": cell.entity_type,
-				"fertilized": cell.fertilized
+				"fertilized": cell.fertilized,
+				"cactus_size": cell.cactus_size
 			}
 			world_cells.append(new_cell)
 			cell_id += 1

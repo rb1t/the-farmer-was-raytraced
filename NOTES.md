@@ -27,3 +27,9 @@
     - Weird Substance comes from harvesting infected plants
     - Weird S. used in creating the maze
 - Power: comes from sunflowers
+
+``` Important inline comment
+# ------------------------------------------------
+# 
+# ------------------------------------------------
+```

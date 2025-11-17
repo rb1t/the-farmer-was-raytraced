@@ -15,19 +15,17 @@ import drone
 # Buld maze
 # ------------------------------------------------
 
-
 def build(size):
-	maze_size=static.ws*2 #full map
+	if (size>0):
+		maze_size = size
+	else:
+		maze_size=static.ws*2 #full map need *2 for some reason?
 
 	if get_entity_type()==Entities.Grass:
 		plant(Entities.Bush)
-		use_item(Items.Weird_Substance,maze_size)
-
-	move(North)
-	# See if the next move north puts us over the world line, and go east
-	#if ((get_pos_y()+1)>=(static.ws)):
-	#	move(East) #columns
-
+		substance = maze_size * 2**(num_unlocked(Unlocks.Mazes) - 1)
+		use_item(Items.Weird_Substance, substance)
+	print("Solving maze of size: ", str(maze_size))
 
 # ------------------------------------------------
 # simple, 'go right and check'
@@ -182,26 +180,44 @@ def maze_explore():
 
 
 # ------------------------------------------------
-# Explore maze using right-hand rule
+# Explore maze using experimental approaches
 # ------------------------------------------------
 
-def solve():
-	if not find_treasure_simple() and (get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush):
+def solve(size):
+	if (size>0):
+		maze_size = size
+	else:
+		maze_size=static.ws*2 #full map need *2 for some reason?
+	# Check if we're standing on treasure
+	if get_entity_type() == Entities.Treasure:
+		quick_print("--> Treasure ...")
+		# occassionally harvest or make a harder maze
+		if ((random()*2000//1)>=1999):
+			harvest()
+			quick_print("(... harvested the treasure!)")
+			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
+		else:
+			quick_print("(... used weird substance on the treasure ...)")
+			substance = maze_size * 2**(num_unlocked(Unlocks.Mazes) - 1)
+			use_item(Items.Weird_Substance, substance)
+		return True   # signal that treasure was found
+	# I probably don't need to check the ground here .. @TODO cleanup
+	if ((get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush)):
 		# Randomly assign [this] drone to try and move directly at the treasure
-		if ((random()*31//1)>=30):
-			if ((random()*7//1)>=6):# Add some random movement once in a while to hope and get unstuck
+		if ((random()*66//1)>=65):
+			if ((random()*106//1)>=105):# Add some random movement once in a while to hope and get unstuck
 				do.move_random()
 			change_hat(Hats.Wizard_Hat)
 			treasure_pos=measure()
 			do.move_linear(treasure_pos)
-
-		elif ((random()*66//1)>=65):# Add some random movement once in a while to hope and get unstuck
+		elif ((random()*133//1)>=131):# Add some random movement once in a while to hope and get unstuck
 			change_hat(Hats.Cactus_Hat)
 			do.move_random()
-
 		else:
 			change_hat(Hats.Gold_Hat) #Normies - these drones don't have a special task yet
+			find_treasure_simple()
 
-		find_treasure_simple()
-	else:
-		build(0)
+	return False #must not have found treasure
+
+
+

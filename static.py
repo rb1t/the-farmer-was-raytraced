@@ -3,6 +3,7 @@
 # Vars that should not change, at least once init
 # ===============================================
 ws=get_world_size()
+compass = [North, East, South, West]
 right_of = {North: East, East: South, South: West, West: North}
 left_of  = {North: West, West: South, South: East, East: North}
 max_available_drones = max_drones()
@@ -39,9 +40,12 @@ tilling_guide = {
 		Entities.Cactus: Grounds.Soil,
 		Entities.Sunflower: Grounds.Soil
 }
+#comment out to not include in do.forage()'s farming
+#@TODO improve logic to farm based on lowest resource
 planting_guide = {
-		Entities.Tree: Grounds.Grassland,
-		Entities.Carrot: Grounds.Soil,
+		#Entities.Grass:Grounds.Grassland,
+		#Entities.Tree: Grounds.Grassland,
+		#Entities.Carrot: Grounds.Soil,
 		Entities.Pumpkin: Grounds.Soil,
 		Entities.Cactus: Grounds.Soil,
 		Entities.Sunflower: Grounds.Soil

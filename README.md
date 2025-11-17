@@ -2,6 +2,8 @@
 
 Really just for personal use, having fun playing this game and learning more coding :)
 
+![Picture of 32 x 32 cacti being sorted](screenshot.png)
+
 ## File Overview
 
 ### Core files

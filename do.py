@@ -286,6 +286,10 @@ def forage():
 	#	spacing=1 #every block
 	spacing=1
 
+	#override spacing
+	if (desired_plant==Entities.Cactus):
+		spacing=2
+
 	# Check and use if water is needed
 	use_water()
 
@@ -299,6 +303,7 @@ def forage():
 	# Till and plant
 	if (ground_at_this_spot!=desired_ground):
 		till()
+
 	plant(desired_plant)
 	# Randomly polyfarm
 	if (get_companion() and (random()*5//1>=4)):
@@ -329,7 +334,18 @@ def forage():
 			till()
 		plant(desired_plant)
 
-	use_item(Items.Fertilizer)
+	# make a bigger cactus area periodically. Does not account for world edge @TODO needs sorting too
+	if (desired_plant == Entities.Cactus) and ((random()*4//1)>=3):
+
+		move(East)
+		harvest()
+		if (desired_ground!=get_ground_type()) and (desired_plant!=get_entity_type()):
+			till()
+		plant(desired_plant)
+
+	# randomly use fertilizer, sparingly
+	if (random()*100//1>=99):
+		use_item(Items.Fertilizer)
 
 	# Determine where to move next ##
 
@@ -353,7 +369,7 @@ def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 	if (desired_plant==Entities.Cactus or desired_plant==Entities.Tree):
 		spacing=2 #skip a block
 	else:
-		spacing=1 #every block
+		spacing=1 #every block (no gap)
 
 	# Check and use if water is needed
 	use_water()
@@ -361,14 +377,16 @@ def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 	ground_at_this_spot = get_ground_type()
 	entity_at_this_spot = get_entity_type()
 
-	# Harvest and plant
-	if (entity_at_this_spot==desired_plant):
-		harvest()
-		plant(desired_plant)
 
 	# Till
 	if (ground_at_this_spot!=desired_ground):
 		till()
+
+	# Harvest and plant
+	#if (entity_at_this_spot==desired_plant):
+	harvest()
+	plant(desired_plant)
+
 
 	if (ground_at_this_spot==desired_ground and entity_at_this_spot!=desired_plant):
 		plant(desired_plant)
@@ -376,7 +394,8 @@ def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 		if((random()*2//1 == 2)):
 			polyfarm(use_fertilizer)
 
-	if (use_fertilizer):
+	# randomly use fertilizer, sparingly
+	if use_fertilizer and (random()*66//1>=59):
 		use_item(Items.Fertilizer)
 
 	# Determine where to move next ##
@@ -394,6 +413,40 @@ def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 
 		for i in range(spacing):
 			move(North) #rows
+
+# Make a 32x32 pumpkin. Meant for 32 drones split across all columns
+def big_pumpkin():
+
+	#Determine spacing based on entity being planted/farmed
+	desired_plant=Entities.Pumpkin
+	desired_ground=Grounds.Soil
+	ground_at_this_spot = get_ground_type()
+	entity_at_this_spot = get_entity_type()
+
+	# Check and use if water is needed
+	use_water()
+
+	# Till
+	if (ground_at_this_spot!=desired_ground):
+		till()
+
+	#Cleanup
+	elif (entity_at_this_spot==Entities.Dead_Pumpkin):
+		harvest()
+	# plant
+	elif (entity_at_this_spot!=desired_plant):
+		plant(desired_plant)
+
+	# See if we started back at the first row
+	if (get_pos_y()==0):
+		database.big_pumpkin_walk_counter+=1
+		print(str(database.big_pumpkin_walk_counter))
+
+	if (database.big_pumpkin_walk_counter>=10):
+		harvest()
+		database.big_pumpkin_walk_counter=0
+
+	move(North)
 
 
 
