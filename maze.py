@@ -25,7 +25,7 @@ def build(size):
 		plant(Entities.Bush)
 		substance = maze_size * 2**(num_unlocked(Unlocks.Mazes) - 1)
 		use_item(Items.Weird_Substance, substance)
-	print("Solving maze of size: ", str(maze_size))
+	#print("Building maze of size: ", str(maze_size))
 
 # ------------------------------------------------
 # simple, 'go right and check'
@@ -33,6 +33,13 @@ def build(size):
 
 def check_treasure():
 	return (get_entity_type() == Entities.Treasure)
+
+
+def move_to_random_spot(map_size):
+	x = random()*map_size//1
+	y = random()*map_size//1
+	pos=x,y
+	do.move_linear(pos)
 
 def find_treasure_simple():
 	facing = drone.facing
@@ -45,7 +52,7 @@ def find_treasure_simple():
 		#quick_print("***** Treasure! *****")
 
 		# occassionally harvest or make a harder maze
-		if ((random()*2000//1)>=1999):
+		if ((random()*100//1)>=99):
 			harvest()
 			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
 		else:
@@ -183,7 +190,7 @@ def maze_explore():
 # Explore maze using experimental approaches
 # ------------------------------------------------
 
-def solve(size):
+def solve(size,drone_id):
 	if (size>0):
 		maze_size = size
 	else:
@@ -192,7 +199,7 @@ def solve(size):
 	if get_entity_type() == Entities.Treasure:
 		quick_print("--> Treasure ...")
 		# occassionally harvest or make a harder maze
-		if ((random()*2000//1)>=1999):
+		if ((random()*100//1)>=93):
 			harvest()
 			quick_print("(... harvested the treasure!)")
 			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
@@ -204,15 +211,21 @@ def solve(size):
 	# I probably don't need to check the ground here .. @TODO cleanup
 	if ((get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush)):
 		# Randomly assign [this] drone to try and move directly at the treasure
-		if ((random()*66//1)>=65):
-			if ((random()*106//1)>=105):# Add some random movement once in a while to hope and get unstuck
-				do.move_random()
+		if ((random()*100//1)>=98): #periodically each drone can become a wizard (move direct) for a turn
 			change_hat(Hats.Wizard_Hat)
 			treasure_pos=measure()
 			do.move_linear(treasure_pos)
+
+		#@TODO 888 is just a placeholder to not assign wizards. chang to 8 for every 8th
+		if ((drone_id+1)%888//1==0): #every 8th drone will be permanently a purple hat/wizard (3 drones at max/32)
+			change_hat(Hats.Wizard_Hat)
+			do.move_linear(measure())
+			if ((random()*66//1)>=64):# Add some random movement once in a while to hope and get unstuck (even for purple hats)
+				change_hat(Hats.Cactus_Hat)
+				do.move_random_once()
 		elif ((random()*133//1)>=131):# Add some random movement once in a while to hope and get unstuck
 			change_hat(Hats.Cactus_Hat)
-			do.move_random()
+			move_to_random_spot(maze_size)
 		else:
 			change_hat(Hats.Gold_Hat) #Normies - these drones don't have a special task yet
 			find_treasure_simple()

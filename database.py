@@ -11,7 +11,7 @@ import cell
 # Generally stuff that will get updated mid-game
 #################################################
 
-big_pumpkin_walk_counter=0
+drone_idle_counter=0
 mode = ["Farm","Maze","Dino"]
 
 

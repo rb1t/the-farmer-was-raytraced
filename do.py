@@ -236,6 +236,16 @@ def move_random():
 	position = x,y
 	move_linear(position)
 
+def move_random_once():
+	random_index = random()*4//1
+	random_direction = static.compass[random_index] # randomly select NorEstSouWest
+	if move(random_direction):
+		pass
+	else:
+		quick_print("I couldn't move there")
+
+
+
 #################################################
 # HARVESTING FUNCTIONS
 #################################################
@@ -415,7 +425,10 @@ def forage_for(desired_plant, desired_ground, use_fertilizer, flip_to_slow):
 			move(North) #rows
 
 # Make a 32x32 pumpkin. Meant for 32 drones split across all columns
-def big_pumpkin():
+def big_pumpkin(drone_id):
+
+	#use drone 0 for deciding when to harvest etc. This keeps track of any activity:
+	drone_activity=False
 
 	#Determine spacing based on entity being planted/farmed
 	desired_plant=Entities.Pumpkin
@@ -426,28 +439,47 @@ def big_pumpkin():
 	# Check and use if water is needed
 	use_water()
 
-	# Till
+	# Till if needed
 	if (ground_at_this_spot!=desired_ground):
+		drone_activity=True
 		till()
 
-	#Cleanup
-	elif (entity_at_this_spot==Entities.Dead_Pumpkin):
-		harvest()
-	# plant
-	elif (entity_at_this_spot!=desired_plant):
+	#Plant
+	if entity_at_this_spot==None:
+		drone_activity=True
 		plant(desired_plant)
 
-	# See if we started back at the first row
-	if (get_pos_y()==0):
-		database.big_pumpkin_walk_counter+=1
-		print(str(database.big_pumpkin_walk_counter))
+	# Plant until it's a proper pumpkin and not a dead one.
+	# We have to use get_entity_type() here.
+	while(get_entity_type()==Entities.Dead_Pumpkin):
+		drone_activity=True
+		if (get_entity_type()==Entities.Dead_Pumpkin): #harvest the dead pumpkin
+			harvest()
+		plant(desired_plant)
+		use_item(Items.Fertilizer) #speed this one up knowing we're behind
 
-	if (database.big_pumpkin_walk_counter>=10):
+		#Let's back pedal to a bit giving the pumpkin time to grow
+		for _ in range(4):
+			move(South)
+			if(get_entity_type()==Entities.Dead_Pumpkin):
+				harvest()
+				plant(desired_plant)
+
+
+	# if drone 0 has done nothing for a number of rounds, it's probably time to harvest
+	if (drone_activity==False and drone_id==0):
+		database.drone_idle_counter+=1
+		#change_hat(Hats.Top_Hat) #visualize the idle period
+	elif(drone_activity==True and drone_id==0 ):
+		database.drone_idle_counter=0 #reset each time something has happened
+		#print(str(database.drone_idle_counter))
+
+	#decide how long it's been idle to (number of loops of the above farming/planting)
+	if (database.drone_idle_counter>=static.ws and drone_id==0):
 		harvest()
-		database.big_pumpkin_walk_counter=0
+		database.drone_idle_counter=0
 
 	move(North)
-
 
 
 #################################################

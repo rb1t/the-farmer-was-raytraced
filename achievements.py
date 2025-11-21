@@ -6,6 +6,8 @@
 # THIS NEEDS A LOT OF WORK :)
 # ===============================================
 
+import cactus
+
 # "Higher-Order Programming - Pass a function as an argument to a function"
 def square(x):
 	return x * x
@@ -30,7 +32,15 @@ def higher_order_programming():
 # "Circular Import - Create an import cycle"
 def circular_import():
 	move(east)
+
 # "Stack Overflow - Cause a stack Overflow"
+#...
+
+# "Wrong Order - Sort a full field of cacti the wrong way round."
+def wrong_order():
+	cactus.reverse_bubble_sort_single()
+
+
 
 #################################################
 #
@@ -39,3 +49,6 @@ def circular_import():
 #################################################
 
 # higher_order_programming() # Higher-Order Programming
+
+# def wrong_order(): # Wrong Order
+

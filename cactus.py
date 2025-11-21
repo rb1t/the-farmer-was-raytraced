@@ -99,24 +99,26 @@ def reverse_bubble_sort_single():
 
 	for y in range(ws):
 		for x in range(ws):
+			pos_x = get_pos_x()
+			pos_y = get_pos_y()
 			#We want to measure() each time so we can potentially swap multiple times per cell pass
 			#Check West
-			if (measure(West)<measure() and x>0):
+			if (measure(West)<measure() and pos_x>0):
 				swap(West)
 				swapped=True
 
 			#Check East
-			if (measure(East)>measure() and x<ws-1):
+			if (measure(East)>measure() and pos_x<ws-1):
 				swap(East)
 				swapped=True
 
 			#Check North
-			if (measure(North)>measure() and y<ws-1):
+			if (measure(North)>measure() and pos_y<ws-1):
 				swap(North)
 				swapped=True
 
 			#Check South
-			if (get_pos_y()>0 and measure(South)>measure()):
+			if (measure(South)<measure() and pos_y>0):
 				swap(South)
 				swapped=True
 
@@ -253,9 +255,9 @@ def solve(drone_id):
 #################################################
 # `SELF TEST`
 #################################################
-
 # Game must directly `Play` this file to access "__main__"
 if __name__ == "__main__":
+	ws=5
 	set_world_size(ws)
 	# Example harvester
 	plant_cacti(False)

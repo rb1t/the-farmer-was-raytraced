@@ -17,22 +17,28 @@ def determine_priority(my_id): #looped in spawn_and_work():
 
 	id = my_id
 
-	if id >= num_drones():
-		print("id overflow :", str(id))
-		do_a_flip()
-		print("id overflow :", str(id))
-		do_a_flip()
+	#There should never be a drone id larger than the allowed number of drones (starting at 0)
+	# if id >= num_drones():
+	# 	print("id overflow :", str(id))
+	# 	do_a_flip()
+	# 	print("id overflow :", str(id))
+	# 	do_a_flip()
 
 	# ------------------------------------------------
 	# Mazes: build and search
 	# ------------------------------------------------
-	# current_entity = get_entity_type()
-	# if id==0 and current_entity!=Entities.Hedge and current_entity!=Entities.Treasure: #only need one builder
-	# 	maze.build(0)
- #
-	# # #experimental maze hunting
-	# if(maze.solve(0)):
-	# 	print("Drone ",id," here, maze runner!")
+	maze_size=18
+	current_entity = get_entity_type()
+	if current_entity!=Entities.Hedge and current_entity!=Entities.Treasure:
+		if get_pos_x()>=maze_size or get_pos_y()>=maze_size:
+			do.move_linear_simple((maze_size-1),(maze_size-1)) #Make
+		elif id==0: #only need one builder
+			start = 0,0
+			do.move_linear(start)
+			maze.build(maze_size)
+	elif(maze.solve(maze_size,id)):
+		#print("Drone ",id," found the treasure!")
+		pass
 
 	# ---
 
@@ -56,7 +62,7 @@ def determine_priority(my_id): #looped in spawn_and_work():
 	#do.forage_for(Entities.Tree, Grounds.Grassland, True, True)
 	#do.forage_for(Entities.Carrot, Grounds.Soil, True, False)
 	#do.forage_for(Entities.Pumpkin, Grounds.Soil, False, False)
-	do.forage_for(Entities.Sunflower, Grounds.Soil, True, True)
+	#do.forage_for(Entities.Sunflower, Grounds.Soil, True, True)
 	#do.forage_for(Entities.Cactus, Grounds.Soil, True, False)
 
 	# ------------------------------------------------
@@ -72,19 +78,19 @@ def determine_priority(my_id): #looped in spawn_and_work():
 	# Other
 	# ------------------------------------------------
 	# 32x32 pumpking
-	#do.big_pumpkin()
+	#do.big_pumpkin(id)
 
 	# Periodically print a drone's "id"
 	#if(random()*10000//1>=9950):
 	# 	print ("I am drone #", str(my_id))
 
 	# Wear a hat based on id
-	if id == 0: #first drone
+	#if id == 0: #first drone
+	#	change_hat(Hats.Wizard_Hat)
+	#elif id == (num_drones()-1): #last drone
+	#	change_hat(Hats.Top_Hat)
+	if id > (num_drones()-1): #shouldn't be a drone this high!
 		change_hat(Hats.The_Farmers_Remains)
-	elif id == (num_drones()-1): #last drone
-		change_hat(Hats.Top_Hat)
-	elif id > (num_drones()-1): #shouldn't be a drone this high!
-		change_hat(Hats.Brown_Hat)
 
 def spawn_and_work():
 	#-------
@@ -104,7 +110,7 @@ def spawn_and_work():
 	while True:
 		# getting all drones out, later we can have logic to spawn only as needed
 		while num_drones() < (static.max_available_drones): ### can lower max drone count artificially
-			spawn_drone(spawn_and_work)
+			spawn_drone(spawn_and_work) #pass in itself so each drone can spawn the next, if possible
 		determine_priority(my_id)#run each loop, for each drone
 	pass
 
