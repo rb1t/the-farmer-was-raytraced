@@ -41,7 +41,7 @@ def move_to_random_spot(map_size):
 	pos=x,y
 	do.move_linear(pos)
 
-def find_treasure_simple():
+def find_treasure_simple(open_rate):
 	facing = drone.facing
 	right_dir = static.right_of[facing]
 	left_dir  = static.left_of[facing]
@@ -50,40 +50,38 @@ def find_treasure_simple():
 	# 1. Check for treasure
 	if get_entity_type() == Entities.Treasure:
 		#quick_print("***** Treasure! *****")
-
 		# occassionally harvest or make a harder maze
-		if ((random()*100//1)>=99):
+		if (random()*(100.0-open_rate))<=1:
 			harvest()
+			# quick_print("GOLD: ",num_items(Items.Gold))
 			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
 		else:
 			use_item(Items.Weird_Substance,(static.ws*2))
-
 		return True   # signal that treasure was found
-
 	# 2. Try right first
 	if can_move(right_dir):
 		move(right_dir)
 		drone.facing = right_dir
 		#quick_print("Turned right and moved ", str(right_dir))
 		return False
-
 	# 3. Try forward
 	elif can_move(facing):
 		move(facing)
 		#quick_print("Moved forward ", str(facing))
 		return False
-
 	# 4. Try left
 	elif can_move(left_dir):
 		move(left_dir)
 		drone.facing = left_dir
 		#quick_print("Turned left and moved ", str(left_dir))
 		return False
-
 	# 5. All blocked turn around
-	else:
+	elif can_move(back_dir):
 		move(back_dir)
 		drone.facing = back_dir
+	else:
+		pass
+
 
 # ------------------------------------------------
 # Count walls around a given cell
@@ -190,24 +188,27 @@ def maze_explore():
 # Explore maze using experimental approaches
 # ------------------------------------------------
 
-def solve(size,drone_id):
+def solve(size,open_rate,drone_id):
 	if (size>0):
 		maze_size = size
 	else:
 		maze_size=static.ws*2 #full map need *2 for some reason?
 	# Check if we're standing on treasure
 	if get_entity_type() == Entities.Treasure:
-		quick_print("--> Treasure ...")
-		# occassionally harvest or make a harder maze
-		if ((random()*100//1)>=93):
+		##quick_print("--> Treasure ...")
+		# occassionally harvest the chest or make a harder maze
+		if (random()*(100.0-open_rate))<=1:
+			#quick_print("(... harvesting the treasure!)")
+			#quick_print("GOLD: ",num_items(Items.Gold))
 			harvest()
-			quick_print("(... harvested the treasure!)")
 			# database.clean_wall_index() # remove the perimeter walls now that the maze is gone
+			return True   # signal that treasure was found
 		else:
-			quick_print("(... used weird substance on the treasure ...)")
+			#quick_print("(... used weird substance on the treasure ...)")
 			substance = maze_size * 2**(num_unlocked(Unlocks.Mazes) - 1)
 			use_item(Items.Weird_Substance, substance)
-		return True   # signal that treasure was found
+			return False # signal that no treasure was found
+
 	# I probably don't need to check the ground here .. @TODO cleanup
 	if ((get_entity_type()!=Entities.Grass) and (get_entity_type()!=Entities.Bush)):
 		# Randomly assign [this] drone to try and move directly at the treasure
@@ -222,13 +223,14 @@ def solve(size,drone_id):
 			do.move_linear(measure())
 			if ((random()*66//1)>=64):# Add some random movement once in a while to hope and get unstuck (even for purple hats)
 				change_hat(Hats.Cactus_Hat)
-				do.move_random_once()
-		elif ((random()*133//1)>=131):# Add some random movement once in a while to hope and get unstuck
+				do.move_random_once(True,maze_size)
+		elif ((random()*133//1)>=131):# Add some random movement to any drone
 			change_hat(Hats.Cactus_Hat)
-			move_to_random_spot(maze_size)
+			do.move_random_once(True,maze_size)
+			#move_to_random_spot(maze_size)
 		else:
 			change_hat(Hats.Gold_Hat) #Normies - these drones don't have a special task yet
-			find_treasure_simple()
+			find_treasure_simple(open_rate)
 
 	return False #must not have found treasure
 

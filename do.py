@@ -236,13 +236,37 @@ def move_random():
 	position = x,y
 	move_linear(position)
 
-def move_random_once():
-	random_index = random()*4//1
-	random_direction = static.compass[random_index] # randomly select NorEstSouWest
-	if move(random_direction):
-		pass
+# Move only one cell/tile. Stay in bounds in True is passed in
+def move_random_once(stay_in_bounds,maze_size):
+
+	if (maze_size == 0):
+		maze_size = static.ws
+
+	if stay_in_bounds:
+		x,y = get_pos()
+		can_move_list = [] #track which ways we can go
+
+		if x+1 < maze_size:
+			can_move_list.append(East)
+		if x-1 > 0:
+			can_move_list.append(West)
+		if y+1 < maze_size:
+			can_move_list.append(North)
+		if y-1 > 0:
+			can_move_list.append(South)
+
+		random_index = (random()*len(can_move_list))//1
+
+		move(can_move_list[random_index])
+
 	else:
-		quick_print("I couldn't move there")
+		#just go anywhere in our dictionary (N/E/S/W)
+		random_index = ((random()*4)+1)//1
+		random_direction = static.compass[random_index]
+		if move(random_direction):
+			pass
+		else:
+			quick_print("I couldn't move there")
 
 
 
@@ -459,7 +483,7 @@ def big_pumpkin(drone_id):
 		use_item(Items.Fertilizer) #speed this one up knowing we're behind
 
 		#Let's back pedal to a bit giving the pumpkin time to grow
-		for _ in range(4):
+		for _ in range(2):
 			move(South)
 			if(get_entity_type()==Entities.Dead_Pumpkin):
 				harvest()

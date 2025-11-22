@@ -14,6 +14,8 @@ import cell
 drone_idle_counter=0
 mode = ["Farm","Maze","Dino"]
 
+#used to track our gold earned, e.g., farming mazes
+gold_at_start = num_items(Items.Gold)
 
 #################################################
 # INIT

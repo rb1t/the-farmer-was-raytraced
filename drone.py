@@ -13,6 +13,9 @@ last_position = 0,0 #not using atm...
 facing = North #set initial direction
 id = 0
 
+maze_size=32
+set_world_size(maze_size)
+
 def determine_priority(my_id): #looped in spawn_and_work():
 
 	id = my_id
@@ -27,23 +30,27 @@ def determine_priority(my_id): #looped in spawn_and_work():
 	# ------------------------------------------------
 	# Mazes: build and search
 	# ------------------------------------------------
-	maze_size=18
-	current_entity = get_entity_type()
-	if current_entity!=Entities.Hedge and current_entity!=Entities.Treasure:
-		if get_pos_x()>=maze_size or get_pos_y()>=maze_size:
-			do.move_linear_simple((maze_size-1),(maze_size-1)) #Make
-		elif id==0: #only need one builder
-			start = 0,0
-			do.move_linear(start)
-			maze.build(maze_size)
-	elif(maze.solve(maze_size,id)):
-		#print("Drone ",id," found the treasure!")
-		pass
-
-	# ---
-
-	#straightforward maze hunting
-	#maze.find_treasure_simple()
+	# treasure_opened = False
+	# open_rate=66.22 # out of 100, floating (higher number = higher chance)
+	# current_entity = get_entity_type()
+	# if current_entity!=Entities.Hedge and current_entity!=Entities.Treasure:
+	# 	database.gold_at_start = num_items(Items.Gold) # reset our gold counter
+	# 	treasure_opened = False
+	# 	if get_pos_x()>=maze_size or get_pos_y()>=maze_size:
+	# 		do.move_linear_simple((maze_size-1),(maze_size-1)) #Make
+	# 	elif id==0: #only need one builder
+	# 		start = 0,0
+	# 		#do.move_linear(start)
+	# 		maze.build(maze_size)
+	# elif(maze.solve(maze_size,open_rate,id)):
+	# 	treasure_opened = True
+	# 	#print("Drone ",id," found the treasure!")
+ #
+	# #if the drone 0 found treasure, or is not in the maze, it's time to calculate earned gold
+	# if (treasure_opened == True):
+	# 	gold_earned = num_items(Items.Gold) - database.gold_at_start
+	# 	quick_print("Gold farmed: ", gold_earned)
+	# 	treasure_opened = False
 
 	# ------------------------------------------------
 	# Dino mode (only one dino hat)
@@ -78,7 +85,7 @@ def determine_priority(my_id): #looped in spawn_and_work():
 	# Other
 	# ------------------------------------------------
 	# 32x32 pumpking
-	#do.big_pumpkin(id)
+	do.big_pumpkin(id)
 
 	# Periodically print a drone's "id"
 	#if(random()*10000//1>=9950):
